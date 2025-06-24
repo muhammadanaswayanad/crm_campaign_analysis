@@ -18,7 +18,6 @@
                                 <th>Campaign</th>
                                 <t t-foreach="context.get('campaign_analysis_data', {}).get('stages', {})" t-as="stage_id">
                                     <th><t t-esc="context['campaign_analysis_data']['stages'][stage_id]"/> (%)</th>
-                                    <th><t t-esc="context['campaign_analysis_data']['stages'][stage_id]"/> (Count)</th>
                                 </t>
                                 <th>Total Leads</th>
                             </tr>
@@ -30,7 +29,6 @@
                                     <t t-foreach="context.get('campaign_analysis_data', {}).get('stages', {})" t-as="stage_id">
                                         <t t-set="stage_info" t-value="context['campaign_analysis_data']['campaigns'][campaign_id]['stages'].get(stage_id, {'percentage': 0.0, 'lead_count': 0})"/>
                                         <td><t t-esc="round(stage_info['percentage'], 2)"/>%</td>
-                                        <td><t t-esc="stage_info['lead_count']"/></td>
                                     </t>
                                     <td><t t-esc="context['campaign_analysis_data']['campaigns'][campaign_id]['total_leads']"/></td>
                                 </tr>

@@ -9,7 +9,6 @@
                 <field name="campaign_id" type="row"/>
                 <field name="stage_id" type="col"/>
                 <field name="percentage" type="measure"/>
-                <field name="lead_count" type="measure"/>
             </pivot>
         </field>
     </record>

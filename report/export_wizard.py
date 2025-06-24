@@ -50,7 +50,6 @@ class ReportExportWizard(models.TransientModel):
         headers = ['Campaign']
         for stage_id, stage_name in data.get('stages', {}).items():
             headers.append(f"{stage_name} (%)")
-            headers.append(f"{stage_name} (Count)")
         headers.append('Total Leads')
         writer.writerow(headers)
         
@@ -60,7 +59,6 @@ class ReportExportWizard(models.TransientModel):
             for stage_id, stage_name in data.get('stages', {}).items():
                 stage_info = campaign_data['stages'].get(stage_id, {'percentage': 0.0, 'lead_count': 0})
                 row.append(f"{stage_info['percentage']:.2f}%")
-                row.append(stage_info['lead_count'])
             row.append(campaign_data['total_leads'])
             writer.writerow(row)
             
@@ -117,8 +115,7 @@ class ReportExportWizard(models.TransientModel):
         # Write stage headers
         for stage_id, stage_name in data.get('stages', {}).items():
             worksheet.write(0, col, f"{stage_name} (%)", header_format)
-            worksheet.write(0, col + 1, f"{stage_name} (Count)", header_format)
-            col += 2
+            col += 1
             
         worksheet.write(0, col, 'Total Leads', header_format)
         
@@ -131,8 +128,7 @@ class ReportExportWizard(models.TransientModel):
             for stage_id, stage_name in data.get('stages', {}).items():
                 stage_info = campaign_data['stages'].get(stage_id, {'percentage': 0.0, 'lead_count': 0})
                 worksheet.write(row, col, stage_info['percentage'] / 100, percentage_format)
-                worksheet.write(row, col + 1, stage_info['lead_count'], number_format)
-                col += 2
+                col += 1
                 
             worksheet.write(row, col, campaign_data['total_leads'], number_format)
             row += 1
