@@ -138,32 +138,3 @@ class CrmCampaignAnalysisReport(models.Model):
             'campaigns': campaigns,
             'stages': stages
         }
-        results = self.env.cr.dictfetchall()
-
-        # Organize data by campaign
-        campaigns = {}
-        stages = {}
-        
-        for row in results:
-            campaign_id = row['campaign_id']
-            stage_id = row['stage_id']
-            
-            if stage_id not in stages:
-                stages[stage_id] = row['stage_name']
-                
-            if campaign_id not in campaigns:
-                campaigns[campaign_id] = {
-                    'name': row['campaign_name'],
-                    'total_leads': row['total_leads'],
-                    'stages': {}
-                }
-                
-            campaigns[campaign_id]['stages'][stage_id] = {
-                'lead_count': row['lead_count'],
-                'percentage': row['percentage'] or 0.0
-            }
-
-        return {
-            'campaigns': campaigns,
-            'stages': stages
-        }
