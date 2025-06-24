@@ -2,6 +2,9 @@ from odoo import api, fields, models, tools
 from odoo.exceptions import UserError
 from psycopg2 import sql
 import datetime
+import logging
+
+_logger = logging.getLogger(__name__)
 
 class CrmCampaignAnalysisReport(models.Model):
     _name = 'crm.campaign.analysis.report'
@@ -18,10 +21,20 @@ class CrmCampaignAnalysisReport(models.Model):
     percentage = fields.Float(string='Percentage', readonly=True, group_operator="avg", digits=(16, 2))
 
     def init(self):
-        # First drop the view if it exists (whether regular or materialized)
-        self.env.cr.execute("DROP MATERIALIZED VIEW IF EXISTS %s CASCADE" % self._table)
+        # First check if the table exists
+        self.env.cr.execute("SELECT to_regclass(%s)", (self._table,))
+        exists = self.env.cr.fetchone()[0]
+        
+        # Handle the case where it might be a regular view first
         tools.drop_view_if_exists(self.env.cr, self._table)
         
+        # Now try to drop it if it's a materialized view (should only happen on re-install)
+        try:
+            self.env.cr.execute("DROP MATERIALIZED VIEW IF EXISTS %s CASCADE" % self._table)
+        except Exception:
+            # If this fails, it's ok - the view doesn't exist or is already dropped
+            pass
+            
         # Create a materialized view for better performance
         self.env.cr.execute("""
             CREATE MATERIALIZED VIEW %s AS (
@@ -47,18 +60,22 @@ class CrmCampaignAnalysisReport(models.Model):
             ) WITH DATA
         """ % self._table)
         
-        # Create indexes for better performance
-        self.env.cr.execute("""
-            CREATE UNIQUE INDEX %s_id_idx ON %s (id)
-        """ % (self._table, self._table))
-        
-        self.env.cr.execute("""
-            CREATE INDEX %s_campaign_idx ON %s (campaign_id)
-        """ % (self._table, self._table))
-        
-        self.env.cr.execute("""
-            CREATE INDEX %s_stage_idx ON %s (stage_id)
-        """ % (self._table, self._table))
+        # Create indexes for better performance - using IF NOT EXISTS to be safe
+        try:
+            self.env.cr.execute("""
+                CREATE UNIQUE INDEX IF NOT EXISTS %s_id_idx ON %s (id)
+            """ % (self._table, self._table))
+            
+            self.env.cr.execute("""
+                CREATE INDEX IF NOT EXISTS %s_campaign_idx ON %s (campaign_id)
+            """ % (self._table, self._table))
+            
+            self.env.cr.execute("""
+                CREATE INDEX IF NOT EXISTS %s_stage_idx ON %s (stage_id)
+            """ % (self._table, self._table))
+        except Exception as e:
+            # Log the error but continue - indexes are optional
+            _logger.warning("Failed to create indexes on %s: %s", self._table, str(e))
 
     @api.model
     def get_campaign_stage_analysis(self, date_from=None, date_to=None):
@@ -69,7 +86,10 @@ class CrmCampaignAnalysisReport(models.Model):
         :return: dict with campaign data and stage distribution
         """
         # Refresh the materialized view to get the most up-to-date data
-        self._cr.execute("REFRESH MATERIALIZED VIEW %s" % self._table)
+        try:
+            self._cr.execute("REFRESH MATERIALIZED VIEW %s" % self._table)
+        except Exception as e:
+            _logger.warning("Failed to refresh materialized view: %s", str(e))
         # Get all stages
         stages_query = """
             SELECT s.id, s.name 
@@ -158,14 +178,23 @@ class CrmCampaignAnalysisReport(models.Model):
         Manually refresh the materialized view. 
         Can be called from a server action if needed.
         """
-        self._cr.execute("REFRESH MATERIALIZED VIEW %s" % self._table)
+        try:
+            self._cr.execute("REFRESH MATERIALIZED VIEW %s" % self._table)
+            message = 'The campaign analysis data has been refreshed.'
+            title = 'Refresh Complete'
+        except Exception as e:
+            message = f'Failed to refresh data: {str(e)}'
+            title = 'Refresh Failed'
+            _logger.error("Failed to refresh materialized view: %s", str(e))
+            
         return {
             'type': 'ir.actions.client',
             'tag': 'display_notification',
             'params': {
-                'title': 'Refresh Complete',
-                'message': 'The campaign analysis data has been refreshed.',
-                'sticky': False,
+                'title': title,
+                'message': message,
+                'sticky': title == 'Refresh Failed',
+                'type': 'success' if title == 'Refresh Complete' else 'danger',
             }
         }
 
@@ -180,8 +209,11 @@ class CrmCampaignAnalysisReport(models.Model):
         refresh_timestamp = ctx.get('pivot_refresh_timestamp')
         
         if date_from or date_to or refresh_timestamp:
-            # Force a refresh of the materialized view before searching
-            self.env.cr.execute("REFRESH MATERIALIZED VIEW %s" % self._table)
+            try:
+                # Force a refresh of the materialized view before searching
+                self._cr.execute("REFRESH MATERIALIZED VIEW %s" % self._table)
+            except Exception as e:
+                _logger.warning("Failed to refresh materialized view: %s", str(e))
         
         # Continue with normal search_read
         return super(CrmCampaignAnalysisReport, self).search_read(domain, fields, offset, limit, order)
