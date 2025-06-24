@@ -33,6 +33,10 @@ class CrmCampaignAnalysisWizard(models.TransientModel):
             'campaign_analysis_data': data,
             'date_from': self.date_from,
             'date_to': self.date_to,
+            # Add a timestamp to force view refresh
+            'search_disable_custom_filters': True,
+            'pivot_refresh_timestamp': fields.Datetime.now(),
+            'pivot_measures': ['percentage'],
         })
         
         # Return the view action
@@ -44,6 +48,8 @@ class CrmCampaignAnalysisWizard(models.TransientModel):
             'context': ctx,
             'target': 'main',
             'domain': [],
+            # Add a unique random domain to force cache refresh
+            'flags': {'clear_breadcrumbs': True},
         }
         
     def action_export_report(self):

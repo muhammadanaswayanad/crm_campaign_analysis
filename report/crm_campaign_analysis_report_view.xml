@@ -5,7 +5,7 @@
         <field name="name">crm.campaign.analysis.pivot</field>
         <field name="model">crm.campaign.analysis.report</field>
         <field name="arch" type="xml">
-            <pivot string="Campaign Analysis" display_quantity="true" disable_linking="true">
+            <pivot string="Campaign Analysis" display_quantity="true" disable_linking="true" sample="1">
                 <field name="campaign_id" type="row"/>
                 <field name="stage_id" type="col"/>
                 <field name="percentage" type="measure"/>
@@ -77,6 +77,7 @@
         <field name="res_model">crm.campaign.analysis.report</field>
         <field name="view_mode">pivot,graph</field>
         <field name="search_view_id" ref="view_crm_campaign_analysis_search"/>
+        <field name="limit">1000</field>
         <field name="context">{'search_default_group_by_campaign': 1}</field>
         <field name="help" type="html">
             <p class="o_view_nocontent_empty_folder">

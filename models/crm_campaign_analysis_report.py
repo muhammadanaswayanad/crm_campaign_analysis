@@ -132,3 +132,21 @@ class CrmCampaignAnalysisReport(models.Model):
             'campaigns': campaigns,
             'stages': stages
         }
+
+    @api.model
+    def search_read(self, domain=None, fields=None, offset=0, limit=None, order=None):
+        # Check if we have date filters in context
+        ctx = self.env.context
+        date_from = ctx.get('date_from')
+        date_to = ctx.get('date_to')
+        
+        if date_from and date_to:
+            # If we have dates in context, get fresh data
+            date_from = datetime.datetime.combine(date_from, datetime.datetime.min.time()) if date_from else None
+            date_to = datetime.datetime.combine(date_to, datetime.datetime.max.time()) if date_to else None
+            
+            # Force a refresh of the data with these dates
+            self.env.cr.execute("REFRESH MATERIALIZED VIEW IF EXISTS %s" % self._table)
+        
+        # Continue with normal search_read
+        return super(CrmCampaignAnalysisReport, self).search_read(domain, fields, offset, limit, order)
