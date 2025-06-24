@@ -52,73 +52,92 @@ class CrmCampaignAnalysisReport(models.Model):
         :param date_to: optional filter for leads created until this date
         :return: dict with campaign data and stage distribution
         """
-        # Base query without date filter
-        base_query = """
-            WITH campaign_totals AS (
-                SELECT
-                    l.campaign_id,
-                    COUNT(l.id) AS total_leads
-                FROM
-                    crm_lead l
-                WHERE
-                    l.campaign_id IS NOT NULL
-                    {date_filter}
-                GROUP BY
-                    l.campaign_id
-            ),
-            campaign_stage_counts AS (
-                SELECT
-                    l.campaign_id,
-                    l.stage_id,
-                    COUNT(l.id) AS stage_count
-                FROM
-                    crm_lead l
-                WHERE
-                    l.campaign_id IS NOT NULL
-                    {date_filter}
-                GROUP BY
-                    l.campaign_id, l.stage_id
-            )
-            SELECT
-                c.id AS campaign_id,
-                c.name AS campaign_name,
-                s.id AS stage_id,
-                s.name AS stage_name,
-                COALESCE(csc.stage_count, 0) AS lead_count,
-                ct.total_leads,
-                (COALESCE(csc.stage_count, 0) * 100.0 / NULLIF(ct.total_leads, 0)) AS percentage
-            FROM
-                utm_campaign c
-            CROSS JOIN
-                crm_stage s
-            JOIN
-                campaign_totals ct ON ct.campaign_id = c.id
-            LEFT JOIN
-                campaign_stage_counts csc ON csc.campaign_id = c.id AND csc.stage_id = s.id
-            ORDER BY
-                c.name, s.sequence
+        # First, get all campaigns
+        campaigns_query = """
+            SELECT c.id, c.name 
+            FROM utm_campaign c 
+            ORDER BY c.name
         """
+        self.env.cr.execute(campaigns_query)
+        campaigns_result = self.env.cr.dictfetchall()
         
+        # Get all stages
+        stages_query = """
+            SELECT s.id, s.name 
+            FROM crm_stage s 
+            ORDER BY s.sequence
+        """
+        self.env.cr.execute(stages_query)
+        stages_result = self.env.cr.dictfetchall()
+        
+        # For each campaign, get the total leads count with date filter
+        date_condition = ""
         params = []
-        date_filter = ""
+        if date_from:
+            date_condition += " AND l.create_date >= %s"
+            params.append(date_from)
+        if date_to:
+            date_condition += " AND l.create_date <= %s"
+            params.append(date_to)
+            
+        # Get total leads per campaign
+        totals_query = """
+            SELECT l.campaign_id, COUNT(l.id) AS total_leads
+            FROM crm_lead l
+            WHERE l.campaign_id IS NOT NULL
+            """ + date_condition + """
+            GROUP BY l.campaign_id
+        """
+        self.env.cr.execute(totals_query, params)
+        totals_result = {r['campaign_id']: r['total_leads'] for r in self.env.cr.dictfetchall()}
         
-        # Add date filters if provided
-        if date_from or date_to:
-            date_conditions = []
-            if date_from:
-                date_conditions.append("l.create_date >= %s")
-                params.append(date_from)
-            if date_to:
-                date_conditions.append("l.create_date <= %s")
-                params.append(date_to)
-            if date_conditions:
-                date_filter = "AND " + " AND ".join(date_conditions)
+        # Get stage counts per campaign
+        counts_query = """
+            SELECT l.campaign_id, l.stage_id, COUNT(l.id) AS lead_count
+            FROM crm_lead l
+            WHERE l.campaign_id IS NOT NULL
+            """ + date_condition + """
+            GROUP BY l.campaign_id, l.stage_id
+        """
+        self.env.cr.execute(counts_query, params)
+        counts_result = self.env.cr.dictfetchall()
         
-        # Format the query with date filter
-        query = base_query.format(date_filter=date_filter)
+        # Organize the data
+        campaigns = {}
+        stages = {}
         
-        # Execute the query
-        self.env.cr.execute(query, params)
+        # Fill stages dictionary
+        for stage in stages_result:
+            stages[stage['id']] = stage['name']
+        
+        # Fill campaigns dictionary with basic data
+        for campaign in campaigns_result:
+            campaign_id = campaign['id']
+            if campaign_id in totals_result:
+                campaigns[campaign_id] = {
+                    'name': campaign['name'],
+                    'total_leads': totals_result[campaign_id],
+                    'stages': {}
+                }
+        
+        # Add stage counts for each campaign
+        for count in counts_result:
+            campaign_id = count['campaign_id']
+            stage_id = count['stage_id']
+            if campaign_id in campaigns and stage_id in stages:
+                lead_count = count['lead_count']
+                total = campaigns[campaign_id]['total_leads']
+                percentage = (lead_count * 100.0 / total) if total else 0.0
+                
+                campaigns[campaign_id]['stages'][stage_id] = {
+                    'lead_count': lead_count,
+                    'percentage': percentage
+                }
+                
+        return {
+            'campaigns': campaigns,
+            'stages': stages
+        }
         results = self.env.cr.dictfetchall()
 
         # Organize data by campaign
