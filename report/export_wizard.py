@@ -106,6 +106,14 @@ class ReportExportWizard(models.TransientModel):
             'border': 1
         })
         
+        # Define red highlight format for warning conditions
+        red_percentage_format = workbook.add_format({
+            'num_format': '0.00%',
+            'border': 1,
+            'bg_color': '#FF9999',  # Light red background
+            'color': '#990000'      # Dark red text
+        })
+        
         number_format = workbook.add_format({
             'num_format': '#,##0',
             'border': 1
@@ -141,7 +149,37 @@ class ReportExportWizard(models.TransientModel):
             
             for stage_id, stage_name in data.get('stages', {}).items():
                 stage_info = campaign_data['stages'].get(stage_id, {'percentage': 0.0, 'lead_count': 0})
-                worksheet.write(row, col, stage_info['percentage'] / 100, percentage_format)
+                percentage_value = stage_info['percentage'] / 100
+                
+                # Get clean stage name for condition checking
+                if isinstance(stage_name, dict):
+                    name_value = next(iter(stage_name.values()), "Unknown")
+                else:
+                    name_value = stage_name
+                
+                # Apply conditional formatting based on rules
+                use_red_format = False
+                
+                # Condition 1: Highlight JUNK > 20%
+                if "JUNK" in name_value and percentage_value > 0.2:
+                    use_red_format = True
+                
+                # Condition 2: Highlight Not Connected (NC) > 20%
+                if ("Not Connected" in name_value or "NC" in name_value) and percentage_value > 0.2:
+                    use_red_format = True
+                
+                # Condition 3: Highlight Admission (A) < 5%
+                if ("Admission" in name_value or name_value == "A") and percentage_value < 0.05:
+                    use_red_format = True
+                
+                # Condition 4: Highlight Hot Prospect (HP) and Future Prospect (FP) < 5%
+                if ("Hot Prospect" in name_value or name_value == "HP" or 
+                    "Future Prospect" in name_value or name_value == "FP") and percentage_value < 0.05:
+                    use_red_format = True
+                
+                # Write cell with appropriate format
+                cell_format = red_percentage_format if use_red_format else percentage_format
+                worksheet.write(row, col, percentage_value, cell_format)
                 col += 1
                 
             worksheet.write(row, col, campaign_data['total_leads'], number_format)
@@ -150,6 +188,15 @@ class ReportExportWizard(models.TransientModel):
         # Adjust column widths
         worksheet.set_column(0, 0, 30)
         worksheet.set_column(1, col, 15)
+        
+        # Add a legend for the highlighting
+        legend_row = row + 3
+        legend_title_format = workbook.add_format({'bold': True})
+        worksheet.write(legend_row, 0, "Highlighted Conditions (Red):", legend_title_format)
+        worksheet.write(legend_row + 1, 0, "• JUNK > 20%")
+        worksheet.write(legend_row + 2, 0, "• Not Connected (NC) > 20%")
+        worksheet.write(legend_row + 3, 0, "• Admission (A) < 5%")
+        worksheet.write(legend_row + 4, 0, "• Hot Prospect (HP) and Future Prospect (FP) < 5%")
         
         # Close workbook
         workbook.close()
