@@ -90,14 +90,15 @@ class CrmCampaignAnalysisReport(models.Model):
             self._cr.execute("REFRESH MATERIALIZED VIEW %s" % self._table)
         except Exception as e:
             _logger.warning("Failed to refresh materialized view: %s", str(e))
-        # Get all stages
-        stages_query = """
-            SELECT s.id, s.name 
-            FROM crm_stage s 
-            ORDER BY s.sequence
-        """
-        self.env.cr.execute(stages_query)
-        stages_result = self.env.cr.dictfetchall()
+        # Get all stages - use orm instead of raw query to handle translations properly
+        stages = self.env['crm.stage'].search([], order='sequence')
+        stages_result = []
+        for stage in stages:
+            # Get the user's language-specific name by accessing the display_name
+            stages_result.append({
+                'id': stage.id,
+                'name': stage.display_name or stage.name  # Use display_name or fallback to name
+            })
         
         # For each campaign, get the total leads count with date filter
         date_condition = ""

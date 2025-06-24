@@ -49,7 +49,14 @@ class ReportExportWizard(models.TransientModel):
         # Write headers
         headers = ['Campaign']
         for stage_id, stage_name in data.get('stages', {}).items():
-            headers.append(f"{stage_name} (%)")
+            # Handle potential dictionary format from translation
+            if isinstance(stage_name, dict):
+                # Use the first value in the dict or a default value if empty
+                name_value = next(iter(stage_name.values()), "Unknown")
+            else:
+                name_value = stage_name
+                
+            headers.append(f"{name_value} (%)")
         headers.append('Total Leads')
         writer.writerow(headers)
         
@@ -112,9 +119,16 @@ class ReportExportWizard(models.TransientModel):
         worksheet.write(0, 0, 'Campaign', header_format)
         col = 1
         
-        # Write stage headers
+        # Write stage headers - ensure we're using string values for stage names
         for stage_id, stage_name in data.get('stages', {}).items():
-            worksheet.write(0, col, f"{stage_name} (%)", header_format)
+            # Handle potential dictionary format from translation
+            if isinstance(stage_name, dict):
+                # Use the first value in the dict or a default value if empty
+                name_value = next(iter(stage_name.values()), "Unknown")
+            else:
+                name_value = stage_name
+                
+            worksheet.write(0, col, f"{name_value} (%)", header_format)
             col += 1
             
         worksheet.write(0, col, 'Total Leads', header_format)

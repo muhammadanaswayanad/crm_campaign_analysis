@@ -17,7 +17,15 @@
                             <tr>
                                 <th>Campaign</th>
                                 <t t-foreach="context.get('campaign_analysis_data', {}).get('stages', {})" t-as="stage_id">
-                                    <th><t t-esc="context['campaign_analysis_data']['stages'][stage_id]"/> (%)</th>
+                                    <th>
+                                        <t t-if="isinstance(context['campaign_analysis_data']['stages'][stage_id], dict)">
+                                            <t t-set="stage_name_dict" t-value="context['campaign_analysis_data']['stages'][stage_id]"/>
+                                            <t t-esc="list(stage_name_dict.values())[0] if stage_name_dict else 'Unknown'"/> (%)
+                                        </t>
+                                        <t t-else="">
+                                            <t t-esc="context['campaign_analysis_data']['stages'][stage_id]"/> (%)
+                                        </t>
+                                    </th>
                                 </t>
                                 <th>Total Leads</th>
                             </tr>
