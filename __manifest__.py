@@ -17,6 +17,15 @@
         'report/report_campaign_analysis_template.xml',
         'views/menu_views.xml',
     ],
+    'assets': {
+        'web.assets_backend': [
+            'crm_campaign_analysis/static/src/js/campaign_analysis_custom_view.js',
+            'crm_campaign_analysis/static/src/css/campaign_analysis.css',
+        ],
+        'web.assets_qweb': [
+            'crm_campaign_analysis/static/src/xml/campaign_analysis_templates.xml',
+        ],
+    },
     'installable': True,
     'application': False,
     'auto_install': False,

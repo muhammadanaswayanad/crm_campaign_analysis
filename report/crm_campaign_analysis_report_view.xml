@@ -71,11 +71,20 @@
         </field>
     </record>
 
+    <!-- Campaign Analysis Custom View -->
+    <record id="view_crm_campaign_analysis_custom" model="ir.ui.view">
+        <field name="name">crm.campaign.analysis.custom</field>
+        <field name="model">crm.campaign.analysis.report</field>
+        <field name="arch" type="xml">
+            <campaign_analysis string="Campaign Analysis"/>
+        </field>
+    </record>
+
     <!-- Campaign Analysis Report Action -->
     <record id="action_crm_campaign_analysis_report" model="ir.actions.act_window">
         <field name="name">Campaign Analysis</field>
         <field name="res_model">crm.campaign.analysis.report</field>
-        <field name="view_mode">pivot,graph</field>
+        <field name="view_mode">campaign_analysis,pivot,graph</field>
         <field name="search_view_id" ref="view_crm_campaign_analysis_search"/>
         <field name="limit">1000</field>
         <field name="context">{'search_default_group_by_campaign': 1}</field>

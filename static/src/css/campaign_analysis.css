@@ -1,0 +1,30 @@
+.o_campaign_analysis_view {
+    padding: 16px;
+}
+
+.o_campaign_analysis_view .table th {
+    background-color: #f0f0f0;
+    position: sticky;
+    top: 0;
+}
+
+.o_campaign_analysis_view .table th, 
+.o_campaign_analysis_view .table td {
+    text-align: center;
+    vertical-align: middle;
+}
+
+.o_campaign_analysis_view .table th:first-child,
+.o_campaign_analysis_view .table td:first-child {
+    text-align: left;
+    font-weight: bold;
+}
+
+.o_campaign_analysis_buttons {
+    padding: 8px;
+}
+
+.bg-danger {
+    background-color: #ffcccb !important;
+    color: #721c24 !important;
+}

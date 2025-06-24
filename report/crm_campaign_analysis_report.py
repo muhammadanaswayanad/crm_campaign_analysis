@@ -37,6 +37,7 @@ class CrmCampaignAnalysisWizard(models.TransientModel):
             'search_disable_custom_filters': True,
             'pivot_refresh_timestamp': fields.Datetime.now(),
             'pivot_measures': ['percentage'],
+            'force_refresh': fields.Datetime.now(),  # This is used by our custom view
         })
         
         # Return the view action
@@ -44,7 +45,7 @@ class CrmCampaignAnalysisWizard(models.TransientModel):
             'name': 'Campaign Analysis',
             'type': 'ir.actions.act_window',
             'res_model': 'crm.campaign.analysis.report',
-            'view_mode': 'pivot,graph',
+            'view_mode': 'campaign_analysis,pivot,graph',
             'context': ctx,
             'target': 'main',
             'domain': [],
