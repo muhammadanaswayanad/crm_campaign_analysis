@@ -3,7 +3,7 @@
     <!-- Menu Items -->
     <menuitem id="menu_crm_campaign_analysis"
               name="Campaign Analysis"
-              parent="crm.menu_crm_report"
+              parent="crm.crm_menu_report"
               action="action_crm_campaign_analysis_wizard"
               sequence="20"/>
 </odoo>
