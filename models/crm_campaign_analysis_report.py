@@ -52,15 +52,6 @@ class CrmCampaignAnalysisReport(models.Model):
         :param date_to: optional filter for leads created until this date
         :return: dict with campaign data and stage distribution
         """
-        # First, get all campaigns
-        campaigns_query = """
-            SELECT c.id, c.name 
-            FROM utm_campaign c 
-            ORDER BY c.name
-        """
-        self.env.cr.execute(campaigns_query)
-        campaigns_result = self.env.cr.dictfetchall()
-        
         # Get all stages
         stages_query = """
             SELECT s.id, s.name 
@@ -80,16 +71,18 @@ class CrmCampaignAnalysisReport(models.Model):
             date_condition += " AND l.create_date <= %s"
             params.append(date_to)
             
-        # Get total leads per campaign
-        totals_query = """
-            SELECT l.campaign_id, COUNT(l.id) AS total_leads
-            FROM crm_lead l
+        # Get campaigns with leads in the time period and their total leads
+        campaigns_query = """
+            SELECT c.id, c.name, COUNT(l.id) AS total_leads
+            FROM utm_campaign c
+            JOIN crm_lead l ON l.campaign_id = c.id
             WHERE l.campaign_id IS NOT NULL
             """ + date_condition + """
-            GROUP BY l.campaign_id
+            GROUP BY c.id, c.name
+            ORDER BY c.name
         """
-        self.env.cr.execute(totals_query, params)
-        totals_result = {r['campaign_id']: r['total_leads'] for r in self.env.cr.dictfetchall()}
+        self.env.cr.execute(campaigns_query, params)
+        campaigns_result = self.env.cr.dictfetchall()
         
         # Get stage counts per campaign
         counts_query = """
@@ -110,17 +103,16 @@ class CrmCampaignAnalysisReport(models.Model):
         for stage in stages_result:
             stages[stage['id']] = stage['name']
         
-        # Fill campaigns dictionary with basic data
+        # Fill campaigns dictionary with basic data (only for campaigns with leads in the period)
         for campaign in campaigns_result:
             campaign_id = campaign['id']
-            if campaign_id in totals_result:
-                campaigns[campaign_id] = {
-                    'name': campaign['name'],
-                    'total_leads': totals_result[campaign_id],
-                    'stages': {}
-                }
+            campaigns[campaign_id] = {
+                'name': campaign['name'],
+                'total_leads': campaign['total_leads'],
+                'stages': {}
+            }
         
-        # Add stage counts for each campaign
+        # Add stage counts and calculate percentage distribution per campaign
         for count in counts_result:
             campaign_id = count['campaign_id']
             stage_id = count['stage_id']
