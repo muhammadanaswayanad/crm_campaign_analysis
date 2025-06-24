@@ -18,9 +18,13 @@ class CrmCampaignAnalysisReport(models.Model):
     percentage = fields.Float(string='Percentage', readonly=True, group_operator="avg", digits=(16, 2))
 
     def init(self):
+        # First drop the view if it exists (whether regular or materialized)
+        self.env.cr.execute("DROP MATERIALIZED VIEW IF EXISTS %s CASCADE" % self._table)
         tools.drop_view_if_exists(self.env.cr, self._table)
+        
+        # Create a materialized view for better performance
         self.env.cr.execute("""
-            CREATE or REPLACE VIEW %s AS (
+            CREATE MATERIALIZED VIEW %s AS (
                 SELECT
                     row_number() OVER () AS id,
                     l.campaign_id,
@@ -40,8 +44,21 @@ class CrmCampaignAnalysisReport(models.Model):
                     l.campaign_id IS NOT NULL
                 GROUP BY
                     l.campaign_id, l.stage_id, l.create_date, camp_total.total_count
-            )
+            ) WITH DATA
         """ % self._table)
+        
+        # Create indexes for better performance
+        self.env.cr.execute("""
+            CREATE UNIQUE INDEX %s_id_idx ON %s (id)
+        """ % (self._table, self._table))
+        
+        self.env.cr.execute("""
+            CREATE INDEX %s_campaign_idx ON %s (campaign_id)
+        """ % (self._table, self._table))
+        
+        self.env.cr.execute("""
+            CREATE INDEX %s_stage_idx ON %s (stage_id)
+        """ % (self._table, self._table))
 
     @api.model
     def get_campaign_stage_analysis(self, date_from=None, date_to=None):
@@ -51,6 +68,8 @@ class CrmCampaignAnalysisReport(models.Model):
         :param date_to: optional filter for leads created until this date
         :return: dict with campaign data and stage distribution
         """
+        # Refresh the materialized view to get the most up-to-date data
+        self._cr.execute("REFRESH MATERIALIZED VIEW %s" % self._table)
         # Get all stages
         stages_query = """
             SELECT s.id, s.name 
@@ -134,19 +153,35 @@ class CrmCampaignAnalysisReport(models.Model):
         }
 
     @api.model
+    def refresh_materialized_view(self):
+        """
+        Manually refresh the materialized view. 
+        Can be called from a server action if needed.
+        """
+        self._cr.execute("REFRESH MATERIALIZED VIEW %s" % self._table)
+        return {
+            'type': 'ir.actions.client',
+            'tag': 'display_notification',
+            'params': {
+                'title': 'Refresh Complete',
+                'message': 'The campaign analysis data has been refreshed.',
+                'sticky': False,
+            }
+        }
+
+    @api.model
     def search_read(self, domain=None, fields=None, offset=0, limit=None, order=None):
         # Check if we have date filters in context
         ctx = self.env.context
         date_from = ctx.get('date_from')
         date_to = ctx.get('date_to')
         
-        if date_from and date_to:
-            # If we have dates in context, get fresh data
-            date_from = datetime.datetime.combine(date_from, datetime.datetime.min.time()) if date_from else None
-            date_to = datetime.datetime.combine(date_to, datetime.datetime.max.time()) if date_to else None
-            
-            # Force a refresh of the data with these dates
-            self.env.cr.execute("REFRESH MATERIALIZED VIEW IF EXISTS %s" % self._table)
+        # Get the refresh timestamp from context
+        refresh_timestamp = ctx.get('pivot_refresh_timestamp')
+        
+        if date_from or date_to or refresh_timestamp:
+            # Force a refresh of the materialized view before searching
+            self.env.cr.execute("REFRESH MATERIALIZED VIEW %s" % self._table)
         
         # Continue with normal search_read
         return super(CrmCampaignAnalysisReport, self).search_read(domain, fields, offset, limit, order)
