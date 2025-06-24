@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Export Wizard View -->
+    <record id="view_crm_campaign_analysis_export_wizard" model="ir.ui.view">
+        <field name="name">crm.campaign.analysis.export.wizard.form</field>
+        <field name="model">crm.campaign.analysis.export.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Export Campaign Analysis">
+                <field name="state" invisible="1"/>
+                <group states="choose">
+                    <group>
+                        <field name="export_type" widget="radio"/>
+                    </group>
+                </group>
+                <div states="done">
+                    <h2>Export Complete</h2>
+                    <p>Your file has been generated successfully.</p>
+                    <field name="data" readonly="1" filename="filename" nolabel="1"/>
+                    <field name="filename" invisible="1"/>
+                </div>
+                <footer>
+                    <button name="action_export" string="Export" type="object" states="choose" class="btn-primary" data-hotkey="q"/>
+                    <button string="Close" class="btn-secondary" special="cancel" data-hotkey="z"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <!-- Export Report Action -->
+    <record id="action_export_campaign_analysis_report" model="ir.actions.act_window">
+        <field name="name">Export Report</field>
+        <field name="res_model">crm.campaign.analysis.export.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+
+    <!-- Add Export Function to Wizard -->
+    <record id="view_crm_campaign_analysis_wizard_form_with_export" model="ir.ui.view">
+        <field name="name">crm.campaign.analysis.wizard.form.export</field>
+        <field name="model">crm.campaign.analysis.wizard</field>
+        <field name="inherit_id" ref="crm_campaign_analysis.view_crm_campaign_analysis_wizard_form"/>
+        <field name="arch" type="xml">
+            <footer position="replace">
+                <footer>
+                    <button name="action_generate_report" string="Generate Report" type="object" class="btn-primary" data-hotkey="q"/>
+                    <button name="action_export_report" string="Export Report" type="object" class="btn-secondary" data-hotkey="e"/>
+                    <button string="Cancel" class="btn-secondary" special="cancel" data-hotkey="z"/>
+                </footer>
+            </footer>
+        </field>
+    </record>
+
+    <!-- PDF Report Template -->
+    <record id="action_report_campaign_analysis" model="ir.actions.report">
+        <field name="name">Campaign Analysis</field>
+        <field name="model">crm.campaign.analysis.wizard</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">crm_campaign_analysis.report_campaign_analysis</field>
+        <field name="report_file">crm_campaign_analysis.report_campaign_analysis</field>
+        <field name="print_report_name">'Campaign Analysis - %s' % (object.date_from)</field>
+    </record>
+</odoo>

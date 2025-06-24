@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Campaign Analysis Report Pivot View -->
+    <record id="view_crm_campaign_analysis_pivot" model="ir.ui.view">
+        <field name="name">crm.campaign.analysis.pivot</field>
+        <field name="model">crm.campaign.analysis.report</field>
+        <field name="arch" type="xml">
+            <pivot string="Campaign Analysis" display_quantity="true" disable_linking="true">
+                <field name="campaign_id" type="row"/>
+                <field name="stage_id" type="col"/>
+                <field name="percentage" type="measure"/>
+                <field name="lead_count" type="measure"/>
+            </pivot>
+        </field>
+    </record>
+
+    <!-- Campaign Analysis Report Graph View -->
+    <record id="view_crm_campaign_analysis_graph" model="ir.ui.view">
+        <field name="name">crm.campaign.analysis.graph</field>
+        <field name="model">crm.campaign.analysis.report</field>
+        <field name="arch" type="xml">
+            <graph string="Campaign Analysis" type="bar" stacked="True">
+                <field name="campaign_id"/>
+                <field name="stage_id"/>
+                <field name="percentage" type="measure"/>
+            </graph>
+        </field>
+    </record>
+    
+    <!-- Campaign Analysis Report Search View -->
+    <record id="view_crm_campaign_analysis_search" model="ir.ui.view">
+        <field name="name">crm.campaign.analysis.search</field>
+        <field name="model">crm.campaign.analysis.report</field>
+        <field name="arch" type="xml">
+            <search string="Campaign Analysis Search">
+                <field name="campaign_id"/>
+                <field name="stage_id"/>
+                <filter string="Last 7 Days" name="last_7_days" 
+                        domain="[('create_date','>=', (context_today() - datetime.timedelta(days=7)).strftime('%Y-%m-%d'))]"/>
+                <filter string="Last 30 Days" name="last_30_days" 
+                        domain="[('create_date','>=', (context_today() - datetime.timedelta(days=30)).strftime('%Y-%m-%d'))]"/>
+                <filter string="Last 90 Days" name="last_90_days" 
+                        domain="[('create_date','>=', (context_today() - datetime.timedelta(days=90)).strftime('%Y-%m-%d'))]"/>
+                <group expand="0" string="Group By">
+                    <filter string="Campaign" name="group_by_campaign" context="{'group_by': 'campaign_id'}"/>
+                    <filter string="Stage" name="group_by_stage" context="{'group_by': 'stage_id'}"/>
+                    <filter string="Created On (Month)" name="group_by_month" context="{'group_by': 'create_date:month'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- Campaign Analysis Wizard Form -->
+    <record id="view_crm_campaign_analysis_wizard_form" model="ir.ui.view">
+        <field name="name">crm.campaign.analysis.wizard.form</field>
+        <field name="model">crm.campaign.analysis.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Campaign Analysis">
+                <group>
+                    <group>
+                        <field name="date_from" required="True"/>
+                    </group>
+                    <group>
+                        <field name="date_to" required="True"/>
+                    </group>
+                </group>
+                <footer>
+                    <button name="action_generate_report" string="Generate Report" type="object" class="btn-primary" data-hotkey="q"/>
+                    <button string="Cancel" class="btn-secondary" special="cancel" data-hotkey="z"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <!-- Campaign Analysis Report Action -->
+    <record id="action_crm_campaign_analysis_report" model="ir.actions.act_window">
+        <field name="name">Campaign Analysis</field>
+        <field name="res_model">crm.campaign.analysis.report</field>
+        <field name="view_mode">pivot,graph</field>
+        <field name="search_view_id" ref="view_crm_campaign_analysis_search"/>
+        <field name="context">{'search_default_group_by_campaign': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_empty_folder">
+                No data available
+            </p>
+            <p>
+                This report provides insights about how leads tied to campaigns are distributed across stages.
+            </p>
+        </field>
+    </record>
+
+    <!-- Campaign Analysis Wizard Action -->
+    <record id="action_crm_campaign_analysis_wizard" model="ir.actions.act_window">
+        <field name="name">Campaign Analysis</field>
+        <field name="res_model">crm.campaign.analysis.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="view_id" ref="view_crm_campaign_analysis_wizard_form"/>
+        <field name="target">new</field>
+    </record>
+</odoo>

@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="report_campaign_analysis">
+        <t t-call="web.html_container">
+            <t t-call="web.external_layout">
+                <div class="page">
+                    <h2>Campaign Analysis Report</h2>
+                    <p>
+                        <strong>Date Range:</strong>
+                        <span t-esc="context.get('date_from')" t-options='{"widget": "date"}'/>
+                        to
+                        <span t-esc="context.get('date_to')" t-options='{"widget": "date"}'/>
+                    </p>
+                    
+                    <table class="table table-bordered table-sm o_report_table">
+                        <thead>
+                            <tr>
+                                <th>Campaign</th>
+                                <t t-foreach="context.get('campaign_analysis_data', {}).get('stages', {})" t-as="stage_id">
+                                    <th><t t-esc="context['campaign_analysis_data']['stages'][stage_id]"/> (%)</th>
+                                    <th><t t-esc="context['campaign_analysis_data']['stages'][stage_id]"/> (Count)</th>
+                                </t>
+                                <th>Total Leads</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <t t-foreach="context.get('campaign_analysis_data', {}).get('campaigns', {})" t-as="campaign_id">
+                                <tr>
+                                    <td><t t-esc="context['campaign_analysis_data']['campaigns'][campaign_id]['name']"/></td>
+                                    <t t-foreach="context.get('campaign_analysis_data', {}).get('stages', {})" t-as="stage_id">
+                                        <t t-set="stage_info" t-value="context['campaign_analysis_data']['campaigns'][campaign_id]['stages'].get(stage_id, {'percentage': 0.0, 'lead_count': 0})"/>
+                                        <td><t t-esc="round(stage_info['percentage'], 2)"/>%</td>
+                                        <td><t t-esc="stage_info['lead_count']"/></td>
+                                    </t>
+                                    <td><t t-esc="context['campaign_analysis_data']['campaigns'][campaign_id]['total_leads']"/></td>
+                                </tr>
+                            </t>
+                        </tbody>
+                    </table>
+                    
+                    <div class="row mt32 mb32">
+                        <div class="col-12">
+                            <p>Generated on <span t-esc="context_today()" t-options='{"widget": "date"}'/> by <span t-esc="env.user.name"/></p>
+                        </div>
+                    </div>
+                </div>
+            </t>
+        </t>
+    </template>
+</odoo>
