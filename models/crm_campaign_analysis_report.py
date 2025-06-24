@@ -52,22 +52,8 @@ class CrmCampaignAnalysisReport(models.Model):
         :param date_to: optional filter for leads created until this date
         :return: dict with campaign data and stage distribution
         """
-        where_clause = []
-        params = []
-
-        if date_from:
-            where_clause.append("l.create_date >= %s")
-            params.append(date_from)
-        if date_to:
-            where_clause.append("l.create_date <= %s")
-            params.append(date_to)
-
-        where_str = " AND ".join(where_clause)
-        where_sql = sql.SQL("")
-        if where_str:
-            where_sql = sql.SQL("AND ") + sql.SQL(where_str)
-
-        query = sql.SQL("""
+        # Base query without date filter
+        base_query = """
             WITH campaign_totals AS (
                 SELECT
                     l.campaign_id,
@@ -76,7 +62,7 @@ class CrmCampaignAnalysisReport(models.Model):
                     crm_lead l
                 WHERE
                     l.campaign_id IS NOT NULL
-                    {where_clause}
+                    {date_filter}
                 GROUP BY
                     l.campaign_id
             ),
@@ -89,7 +75,7 @@ class CrmCampaignAnalysisReport(models.Model):
                     crm_lead l
                 WHERE
                     l.campaign_id IS NOT NULL
-                    {where_clause}
+                    {date_filter}
                 GROUP BY
                     l.campaign_id, l.stage_id
             )
@@ -111,8 +97,27 @@ class CrmCampaignAnalysisReport(models.Model):
                 campaign_stage_counts csc ON csc.campaign_id = c.id AND csc.stage_id = s.id
             ORDER BY
                 c.name, s.sequence
-        """).format(where_clause=where_sql)
-
+        """
+        
+        params = []
+        date_filter = ""
+        
+        # Add date filters if provided
+        if date_from or date_to:
+            date_conditions = []
+            if date_from:
+                date_conditions.append("l.create_date >= %s")
+                params.append(date_from)
+            if date_to:
+                date_conditions.append("l.create_date <= %s")
+                params.append(date_to)
+            if date_conditions:
+                date_filter = "AND " + " AND ".join(date_conditions)
+        
+        # Format the query with date filter
+        query = base_query.format(date_filter=date_filter)
+        
+        # Execute the query
         self.env.cr.execute(query, params)
         results = self.env.cr.dictfetchall()
 
