@@ -172,7 +172,7 @@ class ReportExportWizard(models.TransientModel):
         })
         
         report = self.env.ref('crm_campaign_analysis.action_report_campaign_analysis')
-        pdf = report.with_context(ctx)._render_qweb_pdf([0])[0]
+        pdf = report.with_context(ctx)._render_qweb_pdf(self.ids)[0]
         
         # Set file name and data
         filename = f'campaign_analysis_{fields.Date.today().strftime("%Y%m%d")}.pdf'
