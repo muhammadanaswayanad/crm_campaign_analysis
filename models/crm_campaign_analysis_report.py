@@ -63,8 +63,9 @@ class CrmCampaignAnalysisReport(models.Model):
             params.append(date_to)
 
         where_str = " AND ".join(where_clause)
+        where_sql = sql.SQL("")
         if where_str:
-            where_str = "AND " + where_str
+            where_sql = sql.SQL("AND ") + sql.SQL(where_str)
 
         query = sql.SQL("""
             WITH campaign_totals AS (
@@ -110,7 +111,7 @@ class CrmCampaignAnalysisReport(models.Model):
                 campaign_stage_counts csc ON csc.campaign_id = c.id AND csc.stage_id = s.id
             ORDER BY
                 c.name, s.sequence
-        """).format(where_clause=sql.SQL(where_str))
+        """).format(where_clause=where_sql)
 
         self.env.cr.execute(query, params)
         results = self.env.cr.dictfetchall()
