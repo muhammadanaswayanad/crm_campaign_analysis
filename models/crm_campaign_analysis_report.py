@@ -1,10 +1,56 @@
 from odoo import api, fields, models, tools
 from odoo.exceptions import UserError
 from psycopg2 import sql
-import datetime
-
-
-class CrmCampaignAnalysisReport(models.Model):
+import d        # Add stage counts and store for later percentage calculation
+        # First, collect all lead counts by campaign and stage
+        campaign_stage_counts = {}
+        for count in counts_result:
+            campaign_id = count['campaign_id']
+            stage_id = count['stage_id']
+            if campaign_id in campaigns and stage_id in stages:
+                if campaign_id not in campaign_stage_counts:
+                    campaign_stage_counts[campaign_id] = {}
+                
+                campaign_stage_counts[campaign_id][stage_id] = count['lead_count']
+        
+        # Now calculate percentages for each campaign, ensuring they sum to 100%
+        for campaign_id, campaign_data in campaigns.items():
+            # Skip if this campaign has no stage data
+            if campaign_id not in campaign_stage_counts:
+                continue
+                
+            # Get all stage counts for this campaign
+            stage_counts = campaign_stage_counts[campaign_id]
+            total_count = sum(stage_counts.values())
+            
+            # Calculate percentages and store in campaign data
+            running_total = 0
+            stage_items = list(stage_counts.items())
+            
+            # Process all stages except the last one
+            for i, (stage_id, lead_count) in enumerate(stage_items):
+                if i == len(stage_items) - 1:  # Skip the last stage for now
+                    continue
+                    
+                percentage = (lead_count * 100.0 / total_count) if total_count else 0.0
+                # Round to 2 decimal places to avoid floating point errors
+                percentage = round(percentage, 2)
+                running_total += percentage
+                
+                campaigns[campaign_id]['stages'][stage_id] = {
+                    'lead_count': lead_count,
+                    'percentage': percentage
+                }
+            
+            # Last stage gets the remaining percentage to ensure sum is exactly 100%
+            if stage_items:
+                last_stage_id, last_lead_count = stage_items[-1]
+                last_percentage = 100.0 - running_total
+                
+                campaigns[campaign_id]['stages'][last_stage_id] = {
+                    'lead_count': last_lead_count,
+                    'percentage': last_percentage
+                }ss CrmCampaignAnalysisReport(models.Model):
     _name = 'crm.campaign.analysis.report'
     _description = 'CRM Campaign Analysis Report'
     _auto = False
@@ -77,6 +123,7 @@ class CrmCampaignAnalysisReport(models.Model):
             FROM utm_campaign c
             JOIN crm_lead l ON l.campaign_id = c.id
             WHERE l.campaign_id IS NOT NULL
+            AND c.active = True
             """ + date_condition + """
             GROUP BY c.id, c.name
             ORDER BY c.name
@@ -88,7 +135,9 @@ class CrmCampaignAnalysisReport(models.Model):
         counts_query = """
             SELECT l.campaign_id, l.stage_id, COUNT(l.id) AS lead_count
             FROM crm_lead l
+            JOIN utm_campaign c ON c.id = l.campaign_id
             WHERE l.campaign_id IS NOT NULL
+            AND c.active = True
             """ + date_condition + """
             GROUP BY l.campaign_id, l.stage_id
         """
