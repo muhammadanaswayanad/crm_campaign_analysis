@@ -1,4 +1,4 @@
-odoo.define('crm_campaign_analysis.campaign_analysis_dashboard', ['web.core', 'web.Widget', 'web.rpc', 'web.AbstractAction'], function (require) {
+odoo.define('crm_campaign_analysis.dashboard', ['web.core', 'web.Widget', 'web.rpc', 'web.AbstractAction'], function (require) {
     "use strict";
 
     var core = require('web.core');
@@ -73,9 +73,26 @@ odoo.define('crm_campaign_analysis.campaign_analysis_dashboard', ['web.core', 'w
             var $content = $(QWeb.render('CampaignAnalysisTableTemplate', {
                 campaigns: this.campaignData.campaigns,
                 stages: this.campaignData.stages,
-                formatPercentage: this._formatPercentage,
-                getStageDisplay: this._getStageDisplay,
-                shouldHighlight: this._shouldHighlight,
+                formatPercentage: function(value) {
+                    return value.toFixed(2) + '%';
+                },
+                getStageDisplay: function(stage) {
+                    if (typeof stage === 'object' && stage !== null) {
+                        return Object.values(stage)[0] || 'Unknown';
+                    }
+                    return stage;
+                },
+                shouldHighlight: function(stageName, percentage) {
+                    stageName = String(stageName || '').toUpperCase();
+                    if ((stageName.includes('JUNK') && percentage > 20) ||
+                        ((stageName.includes('NOT CONNECTED') || stageName === 'NC') && percentage > 20) ||
+                        ((stageName.includes('ADMISSION') || stageName === 'A') && percentage < 5) ||
+                        ((stageName.includes('HOT PROSPECT') || stageName === 'HP' || 
+                          stageName.includes('FUTURE PROSPECT') || stageName === 'FP') && percentage < 5)) {
+                        return true;
+                    }
+                    return false;
+                }
             }));
             
             this.$('.o_campaign_analysis_content').append($content);

@@ -23,10 +23,10 @@
             'crm_campaign_analysis/static/src/js/campaign_analysis_dashboard.js',
             'crm_campaign_analysis/static/src/css/campaign_analysis_dashboard.css',
         ],
-        'web.assets_qweb': [
-            'crm_campaign_analysis/static/src/xml/campaign_analysis_dashboard.xml',
-        ],
     },
+    'qweb': [
+        'static/src/xml/campaign_analysis_dashboard.xml',
+    ],
     'installable': True,
     'application': False,
     'auto_install': False,
