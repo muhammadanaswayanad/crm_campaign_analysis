@@ -1,4 +1,9 @@
-odoo.define('crm_campaign_analysis.basic_dashboard', function (require) {
+odoo.define('crm_campaign_analysis.basic_dashboard', [
+    'web.core',
+    'web.Widget', 
+    'web.AbstractAction',
+    'web.rpc'
+], function (require) {
     "use strict";
 
     var core = require('web.core');
