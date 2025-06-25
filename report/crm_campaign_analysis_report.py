@@ -40,16 +40,13 @@ class CrmCampaignAnalysisWizard(models.TransientModel):
             'force_refresh': fields.Datetime.now(),  # This is used by our custom view
         })
         
-        # Return the view action
+        # Return the client action with our context
         return {
-            'name': 'Campaign Analysis',
-            'type': 'ir.actions.act_window',
-            'res_model': 'crm.campaign.analysis.report',
-            'view_mode': 'campaign_analysis,pivot,graph',
+            'name': 'Campaign Analysis Dashboard',
+            'type': 'ir.actions.client',
+            'tag': 'campaign_analysis_dashboard',
             'context': ctx,
             'target': 'main',
-            'domain': [],
-            # Add a unique random domain to force cache refresh
             'flags': {'clear_breadcrumbs': True},
         }
         
