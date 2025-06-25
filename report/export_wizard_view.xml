@@ -33,22 +33,7 @@
         <field name="view_mode">form</field>
         <field name="target">new</field>
     </record>
-
-    <!-- Add Export Function to Wizard -->
-    <record id="view_crm_campaign_analysis_wizard_form_with_export" model="ir.ui.view">
-        <field name="name">crm.campaign.analysis.wizard.form.export</field>
-        <field name="model">crm.campaign.analysis.wizard</field>
-        <field name="inherit_id" ref="crm_campaign_analysis.view_crm_campaign_analysis_wizard_form"/>
-        <field name="arch" type="xml">
-            <footer position="replace">
-                <footer>
-                    <button name="action_generate_report" string="Generate Report" type="object" class="btn-primary" data-hotkey="q"/>
-                    <button name="action_export_report" string="Export Report" type="object" class="btn-secondary" data-hotkey="e"/>
-                    <button string="Cancel" class="btn-secondary" special="cancel" data-hotkey="z"/>
-                </footer>
-            </footer>
-        </field>
-    </record>
+</odoo>
 
     <!-- PDF Report Template -->
     <record id="action_report_campaign_analysis" model="ir.actions.report">
