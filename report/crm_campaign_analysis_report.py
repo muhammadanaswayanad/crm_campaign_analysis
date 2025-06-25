@@ -50,7 +50,6 @@ class CrmCampaignAnalysisWizard(models.TransientModel):
             'domain': [],
             'flags': {'clear_breadcrumbs': True},
         }
-        }
         
     def action_export_report(self):
         self.ensure_one()
