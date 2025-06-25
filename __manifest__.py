@@ -9,25 +9,14 @@
     'category': 'CRM',
     'author': 'Odoo',
     'website': 'https://www.odoo.com',
-    'depends': ['crm'],
+    'depends': ['crm', 'web'],
     'data': [
         'security/ir.model.access.csv',
-        'report/crm_campaign_analysis_report_view.xml',
         'report/export_wizard_view.xml',
+        'report/export_wizard_action.xml',
         'report/report_campaign_analysis_template.xml',
-        'report/campaign_analysis_html_report.xml',
-        'report/campaign_analysis_html_report_action.xml',
-        'views/dashboard_views.xml',
+        'views/campaign_analysis_web_template.xml',
         'views/menu_views.xml',
-    ],
-    'assets': {
-        'web.assets_backend': [
-            'crm_campaign_analysis/static/src/js/campaign_analysis_dashboard.js',
-            'crm_campaign_analysis/static/src/css/campaign_analysis_dashboard.css',
-        ],
-    },
-    'qweb': [
-        'static/src/xml/campaign_analysis_dashboard.xml',
     ],
     'installable': True,
     'application': False,

@@ -1,16 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <!-- Campaign Analysis Report Menu - Opens the HTML report wizard -->
+    <!-- Campaign Analysis Report Menu - Direct URL action to the web interface -->
+    <record id="action_campaign_analysis_web_report" model="ir.actions.act_url">
+        <field name="name">Campaign Analysis</field>
+        <field name="url">/crm/campaign/analysis</field>
+        <field name="target">self</field>
+    </record>
+    
+    <!-- Menu Item -->
     <menuitem id="menu_crm_campaign_analysis_report"
-              name="Campaign Analysis Report"
+              name="Campaign Analysis"
               parent="crm.crm_menu_report"
-              action="action_crm_campaign_analysis_wizard"
+              action="action_campaign_analysis_web_report"
               sequence="20"/>
-              
-    <!-- Campaign Analysis Dashboard Menu - Opens the Dashboard wizard -->
-    <menuitem id="menu_crm_campaign_analysis_dashboard_wizard"
-              name="Campaign Analysis Dashboard"
-              parent="crm.crm_menu_report"
-              action="action_crm_campaign_analysis_dashboard_wizard"
-              sequence="21"/>
 </odoo>

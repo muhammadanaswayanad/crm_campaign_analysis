@@ -90,6 +90,7 @@ class CrmCampaignAnalysisReport(models.Model):
             self._cr.execute("REFRESH MATERIALIZED VIEW %s" % self._table)
         except Exception as e:
             _logger.warning("Failed to refresh materialized view: %s", str(e))
+            
         # Get all stages - use orm instead of raw query to handle translations properly
         stages = self.env['crm.stage'].search([], order='sequence')
         stages_result = []
@@ -111,12 +112,14 @@ class CrmCampaignAnalysisReport(models.Model):
             params.append(date_to)
             
         # Get campaigns with leads in the time period and their total leads
+        # Filter by active campaigns, active leads, and leads in the time period
         campaigns_query = """
             SELECT c.id, c.name, COUNT(l.id) AS total_leads
             FROM utm_campaign c
             JOIN crm_lead l ON l.campaign_id = c.id
             WHERE l.campaign_id IS NOT NULL
             AND c.active = True
+            AND l.active = True
             """ + date_condition + """
             GROUP BY c.id, c.name
             ORDER BY c.name
@@ -131,6 +134,7 @@ class CrmCampaignAnalysisReport(models.Model):
             JOIN utm_campaign c ON c.id = l.campaign_id
             WHERE l.campaign_id IS NOT NULL
             AND c.active = True
+            AND l.active = True
             """ + date_condition + """
             GROUP BY l.campaign_id, l.stage_id
         """

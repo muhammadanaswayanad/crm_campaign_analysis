@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="action_crm_campaign_analysis_export_wizard" model="ir.actions.act_window">
+        <field name="name">Export Campaign Analysis</field>
+        <field name="res_model">crm.campaign.analysis.export.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="view_id" ref="view_crm_campaign_analysis_export_wizard"/>
+        <field name="target">new</field>
+    </record>
+</odoo>
