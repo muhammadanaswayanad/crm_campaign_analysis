@@ -15,6 +15,7 @@
         'report/export_wizard_view.xml',
         'report/export_wizard_action.xml',
         'report/report_campaign_analysis_template.xml',
+        'report/pdf_report.xml',
         'views/campaign_analysis_web_template.xml',
         'views/menu_views.xml',
     ],

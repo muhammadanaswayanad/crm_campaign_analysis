@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- PDF Report Template -->
+    <record id="action_report_campaign_analysis" model="ir.actions.report">
+        <field name="name">Campaign Analysis</field>
+        <field name="model">crm.campaign.analysis.wizard</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">crm_campaign_analysis.report_campaign_analysis</field>
+        <field name="report_file">crm_campaign_analysis.report_campaign_analysis</field>
+        <field name="print_report_name">'Campaign Analysis - %s' % (object.date_from)</field>
+    </record>
+</odoo>
