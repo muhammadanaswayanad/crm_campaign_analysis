@@ -1,9 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <!-- Menu Items -->
-    <menuitem id="menu_crm_campaign_analysis"
-              name="Campaign Analysis"
+    <!-- Campaign Analysis Report Menu - Opens the HTML report wizard -->
+    <menuitem id="menu_crm_campaign_analysis_report"
+              name="Campaign Analysis Report"
               parent="crm.crm_menu_report"
               action="action_crm_campaign_analysis_wizard"
               sequence="20"/>
+              
+    <!-- Campaign Analysis Dashboard Menu - Opens the Dashboard wizard -->
+    <menuitem id="menu_crm_campaign_analysis_dashboard_wizard"
+              name="Campaign Analysis Dashboard"
+              parent="crm.crm_menu_report"
+              action="action_crm_campaign_analysis_dashboard_wizard"
+              sequence="21"/>
 </odoo>

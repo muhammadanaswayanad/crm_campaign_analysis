@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="campaign_analysis_report_template">
+        <t t-call="web.html_container">
+            <t t-call="web.internal_layout">
+                <div class="page">
+                    <h2 class="mb-4">Campaign Analysis Report</h2>
+                    
+                    <!-- Date Range Information -->
+                    <div class="mb-4">
+                        <strong>Date Range:</strong>
+                        <span t-esc="date_from" t-options='{"widget": "date"}'/> to
+                        <span t-esc="date_to" t-options='{"widget": "date"}'/>
+                    </div>
+                    
+                    <!-- Analysis Table -->
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-sm">
+                            <thead>
+                                <tr class="bg-light">
+                                    <th>Campaign</th>
+                                    <t t-foreach="stages" t-as="stage">
+                                        <th class="text-center">
+                                            <t t-if="isinstance(stage_names[stage], dict)">
+                                                <t t-esc="list(stage_names[stage].values())[0] if stage_names[stage] else 'Unknown'"/> (%)
+                                            </t>
+                                            <t t-else="">
+                                                <t t-esc="stage_names[stage]"/> (%)
+                                            </t>
+                                        </th>
+                                    </t>
+                                    <th class="text-center">Total Leads</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <t t-foreach="campaigns" t-as="campaign">
+                                    <tr>
+                                        <td><t t-esc="campaign_names[campaign]"/></td>
+                                        <t t-foreach="stages" t-as="stage">
+                                            <t t-set="percentage" t-value="campaign_data.get(campaign, {}).get(stage, {}).get('percentage', 0.0)"/>
+                                            <t t-set="stage_name" t-value="stage_names[stage]"/>
+                                            <t t-if="isinstance(stage_name, dict)">
+                                                <t t-set="display_name" t-value="list(stage_name.values())[0] if stage_name else 'Unknown'"/>
+                                            </t>
+                                            <t t-else="">
+                                                <t t-set="display_name" t-value="stage_name"/>
+                                            </t>
+                                            
+                                            <!-- Apply conditional styling based on rules -->
+                                            <t t-set="highlight" t-value="False"/>
+                                            <t t-set="display_name_upper" t-value="display_name.upper()"/>
+                                            
+                                            <t t-if="'JUNK' in display_name_upper and percentage > 20.0">
+                                                <t t-set="highlight" t-value="True"/>
+                                            </t>
+                                            <t t-if="('NOT CONNECTED' in display_name_upper or display_name_upper == 'NC') and percentage > 20.0">
+                                                <t t-set="highlight" t-value="True"/>
+                                            </t>
+                                            <t t-if="('ADMISSION' in display_name_upper or display_name_upper == 'A') and percentage &lt; 5.0">
+                                                <t t-set="highlight" t-value="True"/>
+                                            </t>
+                                            <t t-if="('HOT PROSPECT' in display_name_upper or display_name_upper == 'HP' or
+                                                     'FUTURE PROSPECT' in display_name_upper or display_name_upper == 'FP') and percentage &lt; 5.0">
+                                                <t t-set="highlight" t-value="True"/>
+                                            </t>
+                                            
+                                            <td t-attf-class="text-center {{ 'bg-danger text-white' if highlight else '' }}">
+                                                <t t-esc="'%.2f' % percentage"/>%
+                                            </td>
+                                        </t>
+                                        <td class="text-center"><t t-esc="campaign_data.get(campaign, {}).get('total_leads', 0)"/></td>
+                                    </tr>
+                                </t>
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <!-- Highlighting Legend -->
+                    <div class="mt-3">
+                        <h5>Highlighting Rules:</h5>
+                        <ul>
+                            <li>Red: JUNK > 20%</li>
+                            <li>Red: Not Connected (NC) > 20%</li>
+                            <li>Red: Admission (A) &lt; 5%</li>
+                            <li>Red: Hot Prospect (HP) or Future Prospect (FP) &lt; 5%</li>
+                        </ul>
+                    </div>
+                </div>
+            </t>
+        </t>
+    </template>
+</odoo>

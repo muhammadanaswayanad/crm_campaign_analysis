@@ -15,21 +15,20 @@
         'report/crm_campaign_analysis_report_view.xml',
         'report/export_wizard_view.xml',
         'report/report_campaign_analysis_template.xml',
+        'report/campaign_analysis_html_report.xml',
+        'report/campaign_analysis_html_report_action.xml',
         'views/dashboard_views.xml',
         'views/menu_views.xml',
     ],
-    # We're removing the JS assets for now to focus on the Excel export functionality
-    # 'assets': {
-    #     'web.assets_backend': [
-    #         'crm_campaign_analysis/static/src/js/campaign_analysis_dashboard.js',
-    #         'crm_campaign_analysis/static/src/js/campaign_analysis_basic_dashboard.js',
-    #         'crm_campaign_analysis/static/src/css/campaign_analysis_dashboard.css',
-    #     ],
-    # },
-    # 'qweb': [
-    #     'static/src/xml/campaign_analysis_dashboard.xml',
-    #     'static/src/xml/campaign_analysis_basic_dashboard.xml',
-    # ],
+    'assets': {
+        'web.assets_backend': [
+            'crm_campaign_analysis/static/src/js/campaign_analysis_dashboard.js',
+            'crm_campaign_analysis/static/src/css/campaign_analysis_dashboard.css',
+        ],
+    },
+    'qweb': [
+        'static/src/xml/campaign_analysis_dashboard.xml',
+    ],
     'installable': True,
     'application': False,
     'auto_install': False,

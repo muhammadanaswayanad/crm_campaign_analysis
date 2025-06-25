@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Define the HTML Report Action -->
+    <record id="action_campaign_analysis_html_report" model="ir.actions.report">
+        <field name="name">Campaign Analysis Report</field>
+        <field name="model">crm.campaign.analysis.wizard</field>
+        <field name="report_type">qweb-html</field>
+        <field name="report_name">crm_campaign_analysis.campaign_analysis_report_template</field>
+        <field name="report_file">crm_campaign_analysis.campaign_analysis_report_template</field>
+        <field name="print_report_name">'Campaign Analysis - %s to %s' % (object.date_from, object.date_to)</field>
+        <field name="binding_model_id" ref="model_crm_campaign_analysis_wizard"/>
+        <field name="binding_type">report</field>
+    </record>
+</odoo>

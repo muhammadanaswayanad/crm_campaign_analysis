@@ -26,36 +26,15 @@ class CrmCampaignAnalysisWizard(models.TransientModel):
         # Force refresh the materialized view to ensure data is up-to-date
         self.env['crm.campaign.analysis.report'].refresh_materialized_view()
         
-        # Prepare context for the view
+        # Prepare context for the report
         ctx = self.env.context.copy()
         ctx.update({
             'date_from': self.date_from,
             'date_to': self.date_to,
-            # Add a timestamp to force view refresh
-            'search_disable_custom_filters': True,
-            'pivot_refresh_timestamp': fields.Datetime.now(),
-            'pivot_measures': ['percentage'],
-            'group_by': ['campaign_id', 'stage_id'],
         })
         
-        # Construct domain for the pivot view based on date range
-        domain = []
-        if date_from:
-            domain.append(('create_date', '>=', date_from))
-        if date_to:
-            domain.append(('create_date', '<=', date_to))
-        
-        # Return the pivot view action
-        return {
-            'name': 'Campaign Analysis',
-            'type': 'ir.actions.act_window',
-            'res_model': 'crm.campaign.analysis.report',
-            'view_mode': 'pivot,graph',
-            'context': ctx,
-            'target': 'main',
-            'domain': domain,
-            'flags': {'clear_breadcrumbs': True},
-        }
+        # Return the HTML report action
+        return self.env.ref('crm_campaign_analysis.action_campaign_analysis_html_report').with_context(ctx).report_action(self)
         
     def action_export_report(self):
         self.ensure_one()
@@ -83,5 +62,23 @@ class CrmCampaignAnalysisWizard(models.TransientModel):
             'res_model': 'crm.campaign.analysis.export.wizard',
             'view_mode': 'form',
             'target': 'new',
+            'context': ctx,
+        }
+    
+    def action_show_dashboard(self):
+        self.ensure_one()
+        
+        # Prepare context with date filters
+        ctx = self.env.context.copy()
+        ctx.update({
+            'date_from': self.date_from,
+            'date_to': self.date_to,
+        })
+        
+        # Return the dashboard client action with date context
+        return {
+            'type': 'ir.actions.client',
+            'name': 'Campaign Analysis Dashboard',
+            'tag': 'campaign_analysis_dashboard',
             'context': ctx,
         }

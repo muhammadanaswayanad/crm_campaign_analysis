@@ -4,12 +4,26 @@
 }
 
 .o_campaign_analysis_dashboard .o_control_panel {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
     padding: 8px 16px;
     background-color: white;
     border-bottom: 1px solid #dee2e6;
+}
+
+.o_campaign_analysis_dashboard .o_cp_top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+}
+
+.o_campaign_analysis_dashboard .o_cp_bottom {
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
+.o_campaign_analysis_dashboard .date-filter-input {
+    width: 150px;
+    display: inline-block;
 }
 
 .o_campaign_analysis_dashboard .table th {

@@ -1,4 +1,46 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <!-- Placeholder file for future dashboard implementation -->
+    <!-- Campaign Analysis Dashboard Client Action -->
+    <record id="action_crm_campaign_analysis_dashboard" model="ir.actions.client">
+        <field name="name">Campaign Analysis Dashboard</field>
+        <field name="tag">campaign_analysis_dashboard</field>
+        <field name="target">main</field>
+    </record>
+
+    <!-- Campaign Analysis Dashboard Menu Entry -->
+    <menuitem id="menu_crm_campaign_analysis_dashboard"
+              name="Campaign Analysis Dashboard"
+              parent="crm.crm_menu_report"
+              action="action_crm_campaign_analysis_dashboard"
+              sequence="19"/>
+              
+    <!-- Campaign Analysis Dashboard Wizard -->
+    <record id="view_crm_campaign_analysis_wizard_dashboard_form" model="ir.ui.view">
+        <field name="name">crm.campaign.analysis.wizard.dashboard.form</field>
+        <field name="model">crm.campaign.analysis.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Campaign Analysis Dashboard">
+                <group>
+                    <group>
+                        <field name="date_from" required="True"/>
+                    </group>
+                    <group>
+                        <field name="date_to" required="True"/>
+                    </group>
+                </group>
+                <footer>
+                    <button name="action_show_dashboard" string="View Dashboard" type="object" class="btn-primary" data-hotkey="q"/>
+                    <button string="Cancel" class="btn-secondary" special="cancel" data-hotkey="z"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+    
+    <record id="action_crm_campaign_analysis_dashboard_wizard" model="ir.actions.act_window">
+        <field name="name">Campaign Analysis Dashboard</field>
+        <field name="res_model">crm.campaign.analysis.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="view_id" ref="view_crm_campaign_analysis_wizard_dashboard_form"/>
+        <field name="target">new</field>
+    </record>
 </odoo>

@@ -3,13 +3,35 @@
     <t t-name="CampaignAnalysisDashboard">
         <div class="o_campaign_analysis_dashboard">
             <div class="o_control_panel">
-                <div class="o_cp_top_left">
-                    <h1>Campaign Analysis Dashboard</h1>
+                <div class="o_cp_top">
+                    <div class="o_cp_top_left">
+                        <h1>Campaign Analysis Dashboard</h1>
+                    </div>
+                    <div class="o_cp_top_right">
+                        <div class="btn-group">
+                            <button type="button" class="btn btn-primary o_campaign_analysis_refresh">
+                                <i class="fa fa-refresh"/> Refresh
+                            </button>
+                            <button type="button" class="btn btn-secondary dropdown-toggle" data-toggle="dropdown">
+                                <i class="fa fa-download"/> Export
+                            </button>
+                            <div class="dropdown-menu" role="menu">
+                                <a href="#" class="dropdown-item export-btn" data-type="xlsx">Excel</a>
+                                <a href="#" class="dropdown-item export-btn" data-type="csv">CSV</a>
+                                <a href="#" class="dropdown-item export-btn" data-type="pdf">PDF</a>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                <div class="o_cp_top_right">
-                    <button type="button" class="btn btn-primary o_campaign_analysis_refresh">
-                        <i class="fa fa-refresh"/> Refresh
-                    </button>
+                <div class="o_cp_bottom">
+                    <div class="o_cp_bottom_left">
+                        <div class="d-flex align-items-center">
+                            <div class="mr-2">Date From:</div>
+                            <input type="date" class="form-control date-filter-input date-from-input"/>
+                            <div class="mx-2">To:</div>
+                            <input type="date" class="form-control date-filter-input date-to-input"/>
+                        </div>
+                    </div>
                 </div>
             </div>
             <div class="o_content p-3">
@@ -19,6 +41,10 @@
     </t>
 
     <t t-name="CampaignAnalysisTableTemplate">
+        <div class="mt-2 mb-3">
+            <h5>Campaign Analysis Report</h5>
+            <p>Date Range: <t t-esc="dateFrom"/> to <t t-esc="dateTo"/></p>
+        </div>
         <div class="table-responsive">
             <table class="table table-bordered table-hover">
                 <thead class="thead-light">
