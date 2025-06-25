@@ -1,4 +1,12 @@
-odoo.define('crm_campaign_analysis.custom_view', function (require) {
+odoo.define('crm_campaign_analysis.campaign_analysis_custom_view', [
+    'web.AbstractView',
+    'web.AbstractController',
+    'web.AbstractRenderer',
+    'web.AbstractModel',
+    'web.core',
+    'web.view_registry',
+    'web._'
+], function (require) {
     "use strict";
 
     var AbstractView = require('web.AbstractView');
@@ -7,8 +15,10 @@ odoo.define('crm_campaign_analysis.custom_view', function (require) {
     var AbstractModel = require('web.AbstractModel');
     var core = require('web.core');
     var view_registry = require('web.view_registry');
+    var _ = require('web._');
 
     var QWeb = core.qweb;
+    var _lt = core._lt;
 
     var CustomModel = AbstractModel.extend({
         /**
@@ -126,6 +136,17 @@ odoo.define('crm_campaign_analysis.custom_view', function (require) {
                         return Object.values(stage)[0] || 'Unknown';
                     }
                     return stage;
+                },
+                shouldHighlight: function(stageName, percentage) {
+                    var name = String(stageName || '').toUpperCase();
+                    if ((name.includes('JUNK') && percentage > 20) ||
+                        ((name.includes('NOT CONNECTED') || name === 'NC') && percentage > 20) ||
+                        ((name.includes('ADMISSION') || name === 'A') && percentage < 5) ||
+                        ((name.includes('HOT PROSPECT') || name === 'HP' || 
+                          name.includes('FUTURE PROSPECT') || name === 'FP') && percentage < 5)) {
+                        return true;
+                    }
+                    return false;
                 }
             }));
 

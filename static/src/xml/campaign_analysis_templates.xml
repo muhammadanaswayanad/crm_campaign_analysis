@@ -35,13 +35,7 @@
                             <td><t t-esc="campaign[1].name"/></td>
                             <t t-foreach="Object.entries(stages)" t-as="stage">
                                 <t t-set="stageInfo" t-value="campaign[1].stages[stage[0]] || {percentage: 0.0, lead_count: 0}"/>
-                                <td t-att-class="
-                                    (getStageDisplay(stage[1]).includes('JUNK') && stageInfo.percentage > 20) || 
-                                    ((getStageDisplay(stage[1]).includes('Not Connected') || getStageDisplay(stage[1]) === 'NC') && stageInfo.percentage > 20) || 
-                                    ((getStageDisplay(stage[1]) === 'A' || getStageDisplay(stage[1]).includes('Admission')) && stageInfo.percentage &lt; 5) || 
-                                    ((getStageDisplay(stage[1]) === 'HP' || getStageDisplay(stage[1]).includes('Hot Prospect') || 
-                                      getStageDisplay(stage[1]) === 'FP' || getStageDisplay(stage[1]).includes('Future Prospect')) && stageInfo.percentage &lt; 5) 
-                                    ? 'bg-danger' : ''">
+                                <td t-att-class="shouldHighlight(getStageDisplay(stage[1]), stageInfo.percentage) ? 'bg-danger' : ''">
                                     <t t-esc="formatPercentage(stageInfo.percentage)"/>
                                 </td>
                             </t>
