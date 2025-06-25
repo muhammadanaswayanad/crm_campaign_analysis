@@ -37,17 +37,19 @@ class CrmCampaignAnalysisWizard(models.TransientModel):
             'search_disable_custom_filters': True,
             'pivot_refresh_timestamp': fields.Datetime.now(),
             'pivot_measures': ['percentage'],
-            'force_refresh': fields.Datetime.now(),  # This is used by our custom view
         })
         
-        # Return the client action with our context
+        # Return the pivot view action instead of client action
         return {
-            'name': 'Campaign Analysis Dashboard',
-            'type': 'ir.actions.client',
-            'tag': 'campaign_analysis_dashboard',
+            'name': 'Campaign Analysis',
+            'type': 'ir.actions.act_window',
+            'res_model': 'crm.campaign.analysis.report',
+            'view_mode': 'pivot',
             'context': ctx,
             'target': 'main',
+            'domain': [],
             'flags': {'clear_breadcrumbs': True},
+        }
         }
         
     def action_export_report(self):

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+    <t t-name="CampaignAnalysisBasicDashboard">
+        <div class="o_campaign_analysis_basic_dashboard p-3">
+            <div class="d-flex justify-content-between mb-3">
+                <h3>Campaign Analysis Dashboard</h3>
+                <button class="btn btn-primary o_campaign_refresh">
+                    <i class="fa fa-refresh"/> Refresh
+                </button>
+            </div>
+            <div class="o_campaign_analysis_content">
+                <div class="alert alert-info">
+                    Loading campaign data...
+                </div>
+            </div>
+        </div>
+    </t>
+</templates>

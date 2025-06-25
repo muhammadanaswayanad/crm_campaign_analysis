@@ -21,11 +21,13 @@
     'assets': {
         'web.assets_backend': [
             'crm_campaign_analysis/static/src/js/campaign_analysis_dashboard.js',
+            'crm_campaign_analysis/static/src/js/campaign_analysis_basic_dashboard.js',
             'crm_campaign_analysis/static/src/css/campaign_analysis_dashboard.css',
         ],
     },
     'qweb': [
         'static/src/xml/campaign_analysis_dashboard.xml',
+        'static/src/xml/campaign_analysis_basic_dashboard.xml',
     ],
     'installable': True,
     'application': False,

@@ -1,4 +1,4 @@
-odoo.define('crm_campaign_analysis.dashboard', ['web.core', 'web.Widget', 'web.rpc', 'web.AbstractAction'], function (require) {
+odoo.define('crm_campaign_analysis.campaign_analysis_dashboard', ['web.core', 'web.Widget', 'web.rpc', 'web.AbstractAction'], function (require) {
     "use strict";
 
     var core = require('web.core');
@@ -150,7 +150,14 @@ odoo.define('crm_campaign_analysis.dashboard', ['web.core', 'web.Widget', 'web.r
         },
     });
 
+    // Add to the registry - Adding console logs for debugging
+    console.log('Registering campaign_analysis_dashboard client action');
+    console.log('Registry before:', core.action_registry.map);
     core.action_registry.add('campaign_analysis_dashboard', CampaignAnalysisDashboard);
+    console.log('Registry after:', core.action_registry.map);
+    
+    // Also add it with a different key just in case
+    core.action_registry.add('crm_campaign_analysis.campaign_analysis_dashboard', CampaignAnalysisDashboard);
 
     return CampaignAnalysisDashboard;
 });
