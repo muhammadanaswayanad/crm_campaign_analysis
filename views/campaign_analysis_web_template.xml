@@ -6,6 +6,8 @@
             <t t-set="head">
                 <t t-call-assets="web.assets_common" t-js="false"/>
                 <t t-call-assets="web.assets_backend" t-js="false"/>
+                <t t-call-assets="web.assets_common" t-css="false"/>
+                <t t-call-assets="web.assets_backend" t-css="false"/>
                 
                 <style>
                     .filter-panel {
@@ -60,8 +62,9 @@
                                                     Export
                                                 </button>
                                                 <div class="dropdown-menu" role="menu">
-                                                    <t t-set="export_url" t-value="'/web/action/load?action_id=' + request.env.ref('crm_campaign_analysis.action_crm_campaign_analysis_export_wizard').id"/>
-                                                    <a class="dropdown-item" t-att-href="export_url + '&amp;date_from=' + date_from_str + '&amp;date_to=' + date_to_str + '&amp;menu_id=' + request.env.ref('crm_campaign_analysis.menu_crm_campaign_analysis_report').id + '&amp;model=crm.campaign.analysis.report'">
+                                                    <t t-set="action_id" t-value="str(request.env.ref('crm_campaign_analysis.action_crm_campaign_analysis_export_wizard').id)"/>
+                                                    <t t-set="menu_id" t-value="str(request.env.ref('crm_campaign_analysis.menu_crm_campaign_analysis_report').id)"/>
+                                                    <a class="dropdown-item" t-att-href="'/web/action/load?action_id=' + action_id + '&amp;date_from=' + date_from_str + '&amp;date_to=' + date_to_str + '&amp;menu_id=' + menu_id + '&amp;model=crm.campaign.analysis.report'">
                                                         Excel/CSV/PDF
                                                     </a>
                                                 </div>
@@ -161,7 +164,20 @@
             
             <script type="text/javascript">
                 $(document).ready(function() {
-                    // Add javascript for any interactive elements here if needed
+                    // Validate dates when the form is submitted
+                    $('form').on('submit', function(e) {
+                        var dateFrom = $('#date_from').val();
+                        var dateTo = $('#date_to').val();
+                        
+                        if (dateFrom && dateTo && new Date(dateFrom) > new Date(dateTo)) {
+                            e.preventDefault();
+                            alert("'From Date' cannot be greater than 'To Date'");
+                            return false;
+                        }
+                    });
+                    
+                    // Handle export dropdown
+                    $('.dropdown-toggle').dropdown();
                 });
             </script>
         </t>

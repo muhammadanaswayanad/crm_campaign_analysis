@@ -3,6 +3,7 @@ import base64
 import io
 import csv
 import xlsxwriter
+from datetime import datetime, timedelta
 
 
 class ReportExportWizard(models.TransientModel):
@@ -27,8 +28,26 @@ class ReportExportWizard(models.TransientModel):
         
         # Get context information passed from the wizard
         ctx = self.env.context
+        
+        # Check if date_from and date_to are passed as strings (from URL parameters)
         date_from = ctx.get('date_from')
         date_to = ctx.get('date_to')
+        
+        # Convert string dates to datetime if needed
+        if date_from and isinstance(date_from, str):
+            try:
+                date_from = datetime.strptime(date_from, '%Y-%m-%d')
+            except ValueError:
+                date_from = datetime.now() - timedelta(days=30)
+        
+        if date_to and isinstance(date_to, str):
+            try:
+                date_to = datetime.strptime(date_to, '%Y-%m-%d')
+            except ValueError:
+                date_to = datetime.now()
+                
+        # Force refresh the materialized view
+        self.env['crm.campaign.analysis.report'].refresh_materialized_view()
         
         # Get report data
         report_model = self.env['crm.campaign.analysis.report']
