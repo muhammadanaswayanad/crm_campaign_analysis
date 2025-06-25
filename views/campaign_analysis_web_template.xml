@@ -169,7 +169,7 @@
                         var dateFrom = $('#date_from').val();
                         var dateTo = $('#date_to').val();
                         
-                        if (dateFrom && dateTo && new Date(dateFrom) > new Date(dateTo)) {
+                        if (dateFrom &amp;&amp; dateTo &amp;&amp; new Date(dateFrom) > new Date(dateTo)) {
                             e.preventDefault();
                             alert("'From Date' cannot be greater than 'To Date'");
                             return false;
