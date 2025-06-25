@@ -1,5 +1,13 @@
 {
-    'name': 'CRM Campaign Analysis',
+    'name': 'CRM C    'assets': {
+        'web.assets_backend': [
+            'crm_campaign_analysis/static/src/js/campaign_analysis_dashboard.js',
+            'crm_campaign_analysis/static/src/css/campaign_analysis_dashboard.css',
+        ],
+        'web.assets_qweb': [
+            'crm_campaign_analysis/static/src/xml/campaign_analysis_dashboard.xml',
+        ],
+    },nalysis',
     'version': '17.0.1.0.0',
     'summary': 'Campaign Analysis Report for CRM',
     'description': '''

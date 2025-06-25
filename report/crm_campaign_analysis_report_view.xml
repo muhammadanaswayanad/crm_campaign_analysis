@@ -71,6 +71,13 @@
         </field>
     </record>
 
+    <!-- Campaign Analysis Dashboard Action -->
+    <record id="action_crm_campaign_analysis_dashboard" model="ir.actions.client">
+        <field name="name">Campaign Analysis Dashboard</field>
+        <field name="tag">campaign_analysis_dashboard</field>
+        <field name="target">main</field>
+    </record>
+    
     <!-- Campaign Analysis Report Action -->
     <record id="action_crm_campaign_analysis_report" model="ir.actions.act_window">
         <field name="name">Campaign Analysis</field>

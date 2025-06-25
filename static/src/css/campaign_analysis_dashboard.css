@@ -1,0 +1,37 @@
+.o_campaign_analysis_dashboard {
+    height: 100%;
+    background-color: #f8f9fa;
+}
+
+.o_campaign_analysis_dashboard .o_control_panel {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 16px;
+    background-color: white;
+    border-bottom: 1px solid #dee2e6;
+}
+
+.o_campaign_analysis_dashboard .table th {
+    background-color: #f0f0f0;
+    position: sticky;
+    top: 0;
+}
+
+.o_campaign_analysis_dashboard .table th, 
+.o_campaign_analysis_dashboard .table td {
+    text-align: center;
+    vertical-align: middle;
+    padding: 8px;
+}
+
+.o_campaign_analysis_dashboard .table th:first-child,
+.o_campaign_analysis_dashboard .table td:first-child {
+    text-align: left;
+    font-weight: bold;
+}
+
+.o_campaign_analysis_dashboard .bg-danger {
+    background-color: #ffcccb !important;
+    color: #721c24 !important;
+}
